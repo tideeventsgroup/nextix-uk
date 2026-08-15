@@ -29,10 +29,16 @@ const footerGroups = [
 export function SiteFooter() {
   return (
     <footer className="platform-footer">
-      <div className="footer-topline"><p><span>Plan it.</span><span>Sell it.</span><span>Run it.</span></p><a href="/organisers">Explore Alyvra for organisers ↗</a></div>
-      <div className="footer-lead"><img src="/alyvra-logo.png" alt="Alyvra" /><h2>Good events<br />start here.</h2><p>One thoughtful platform for finding, selling and running unforgettable events.</p><div className="socials"><a href="/contact" aria-label="Instagram">ig</a><a href="/contact" aria-label="LinkedIn">in</a><a href="/contact" aria-label="TikTok">tk</a></div></div>
-      <div className="footer-directory"><div className="footer-links">{footerGroups.map((group) => <div key={group.title}><h3>{group.title}</h3>{group.links.map(([label, href]) => <a href={href} key={label}>{label}</a>)}</div>)}</div><form className="footer-newsletter"><div><strong>Stay in the loop</strong><span>New events and good things, occasionally.</span></div><label><input type="email" placeholder="Email address" aria-label="Email address"/><button type="submit" aria-label="Subscribe">→</button></label></form></div>
-      <div className="footer-bottom"><span>© 2026 Alyvra Technologies Ltd</span><span>Designed for better events.</span><a href="#top">Back to top ↑</a></div>
+      <section className="footer-cta">
+        <div><p>For event organisers</p><h2>Put everything behind<br />your event in one place.</h2></div>
+        <div><p>Ticketing, planning and live operations—connected from first announcement to final report.</p><a href="/organisers">Explore the platform <span>↗</span></a></div>
+      </section>
+      <div className="footer-main">
+        <div className="footer-brand"><img src="/alyvra-logo.png" alt="Alyvra" /><p>Good events start here. Discover what’s on, secure your place and keep every ticket close.</p><form className="footer-newsletter"><strong>Get the good stuff first.</strong><label><input type="email" placeholder="Email address" aria-label="Email address"/><button type="submit" aria-label="Subscribe">Join <span>→</span></button></label><small>Occasional event recommendations. No noise.</small></form></div>
+        <div className="footer-links">{footerGroups.map((group) => <div key={group.title}><h3>{group.title}</h3>{group.links.map(([label, href]) => <a href={href} key={label}>{label}</a>)}</div>)}</div>
+      </div>
+      <div className="footer-signature" aria-hidden="true">alyvra<span>.</span></div>
+      <div className="footer-bottom"><span>© 2026 Alyvra Technologies Ltd</span><div><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/accessibility">Accessibility</a></div><div className="socials"><a href="/contact" aria-label="Instagram">ig</a><a href="/contact" aria-label="LinkedIn">in</a><a href="/contact" aria-label="TikTok">tk</a></div><a href="#top">Back to top ↑</a></div>
     </footer>
   );
 }
