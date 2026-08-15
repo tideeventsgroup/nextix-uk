@@ -1,0 +1,11 @@
+const events = [
+  ["North Coast Sessions", "Music", "12 Sep", "Ayr", "32", "https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1000&q=85"],
+  ["Field & Flame Festival", "Food & drink", "20 Sep", "Glasgow", "18", "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1000&q=85"],
+  ["A Midsummer Night’s Dream", "Theatre", "24 Sep", "Edinburgh", "24", "https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=1000&q=85"],
+  ["Little Explorers Live", "Family", "3 Oct", "Dundee", "12", "https://images.unsplash.com/photo-1472653431158-6364773b2a56?auto=format&fit=crop&w=1000&q=85"],
+  ["City 10K & Festival", "Sport", "11 Oct", "Stirling", "20", "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1000&q=85"],
+  ["Afterlight Orchestra", "Music", "23 Oct", "Aberdeen", "28", "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1000&q=85"],
+];
+const slug = (title:string) => title.toLowerCase().replace(/[’']/g, "").replace(/&/g,"and").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+
+export default function EventsPage() { return <main className="inner-page" id="top"><section className="page-hero events-hero"><p className="eyebrow">Make plans worth keeping</p><h1>Find your<br />next event.</h1><p>From one-night-only performances to weekends you’ll never forget.</p><label className="directory-search"><input placeholder="Search by event, artist or city" aria-label="Search events" /><button>Search</button></label></section><section className="directory"><div className="filter-bar"><strong>Explore 148 events</strong><div><button>Dates</button><button>Categories</button><button>Location</button></div></div><div className="directory-grid">{events.map(([title,category,date,city,price,image]) => <article key={title}><a href={`/events/${slug(title)}`}><img src={image} alt="" /></a><div><p>{category} · {date}</p><h2><a href={`/events/${slug(title)}`}>{title}</a></h2><span>{city}</span><strong>From £{price}</strong><a className="directory-ticket" href={`/events/${slug(title)}`}>View event & tickets ↗</a></div></article>)}</div></section></main> }

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 const categories = ["All events", "Music", "Food & drink", "Theatre", "Family", "Sport"];
+const eventSlug = (title: string) => title.toLowerCase().replace(/[’']/g, "").replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 const events = [
   {
@@ -81,7 +82,6 @@ export default function Home() {
   const [category, setCategory] = useState("All events");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<(typeof events)[number] | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
 
   const featured = events.slice(0, 3);
@@ -102,24 +102,6 @@ export default function Home() {
 
   return (
     <main>
-      <header className="site-header">
-        <a className="brand" href="#top" aria-label="Alyvra home">
-          <img src="/alyvra-logo.png" alt="Alyvra" />
-        </a>
-        <nav className={menuOpen ? "nav open" : "nav"} aria-label="Primary navigation">
-          <a href="#events" onClick={() => setMenuOpen(false)}>Find events</a>
-          <a href="#organisers" onClick={() => setMenuOpen(false)}>For organisers</a>
-          <a href="#help" onClick={() => setMenuOpen(false)}>Help</a>
-        </nav>
-        <div className="header-actions">
-          <button className="text-button">Sign in</button>
-          <button className="primary-button">List your event</button>
-        </div>
-        <button className="menu-button" aria-label="Toggle menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
-          <span /><span />
-        </button>
-      </header>
-
       <section className="slider-hero" id="top" aria-roledescription="carousel" aria-label="Featured events">
         {featured.map((event, index) => (
           <article className={activeSlide === index ? "hero-slide active" : "hero-slide"} key={event.id} aria-hidden={activeSlide !== index}>
@@ -135,7 +117,7 @@ export default function Home() {
               </div>
               <div className="slide-actions">
                 <button className="hero-ticket-button" onClick={() => setSelected(event)}>Get tickets <span>↗</span></button>
-                <button className="details-button" onClick={() => document.getElementById("events")?.scrollIntoView({ behavior: "smooth" })}>Explore event</button>
+                <a className="details-button" href={`/events/${eventSlug(event.title)}`}>Explore event</a>
               </div>
             </div>
           </article>
@@ -183,7 +165,7 @@ export default function Home() {
                   <p className="event-date">{event.date} · {event.time}</p>
                   <h3>{event.title}</h3>
                   <p className="location">{event.place}</p>
-                  <div><strong>{event.price}</strong><button onClick={() => setSelected(event)}>Get tickets</button></div>
+                  <div><strong>{event.price}</strong><a className="event-details" href={`/events/${eventSlug(event.title)}`}>Details</a><button onClick={() => setSelected(event)}>Get tickets</button></div>
                 </div>
               </article>
             ))}
@@ -196,13 +178,6 @@ export default function Home() {
         <div className="organiser-copy"><p>Sell tickets, know your audience and run your event with confidence—all from one thoughtful platform.</p><button className="light-button">Explore Alyvra for organisers <span>→</span></button></div>
         <div className="metric"><strong>2.4m</strong><span>tickets delivered</span></div>
       </section>
-
-      <footer id="help">
-        <img src="/alyvra-logo.png" alt="Alyvra" />
-        <p>Good events start here.</p>
-        <div><a href="#events">Discover</a><a href="#organisers">Organisers</a><a href="#help">Support</a><a href="#help">Privacy</a></div>
-        <small>© 2026 Alyvra Technologies Ltd</small>
-      </footer>
 
       {selected && (
         <div className="modal-backdrop" role="presentation" onMouseDown={() => setSelected(null)}>
