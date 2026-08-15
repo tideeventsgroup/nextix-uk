@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const categories = ["All events", "Music", "Food & drink", "Theatre", "Family", "Sport"];
 
@@ -82,6 +82,14 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<(typeof events)[number] | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const featured = events.slice(0, 3);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setActiveSlide((current) => (current + 1) % featured.length), 6500);
+    return () => window.clearInterval(timer);
+  }, [featured.length]);
 
   const visibleEvents = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -112,30 +120,44 @@ export default function Home() {
         </button>
       </header>
 
-      <section className="hero" id="top">
-        <div className="hero-copy">
-          <p className="eyebrow">Events worth showing up for</p>
-          <h1>Find your next<br /><em>great day out.</em></h1>
-          <p className="hero-intro">Discover live music, local festivals, theatre and unforgettable experiences near you.</p>
-          <label className="hero-search">
-            <SearchIcon />
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search events, artists or places" aria-label="Search events" />
-            <button onClick={() => document.getElementById("events")?.scrollIntoView({ behavior: "smooth" })}>Search</button>
-          </label>
-          <div className="trust-row">
-            <div className="faces" aria-hidden="true"><span>JM</span><span>AR</span><span>SK</span></div>
-            <p><strong>4.9 out of 5</strong><br />from verified ticket buyers</p>
+      <section className="slider-hero" id="top" aria-roledescription="carousel" aria-label="Featured events">
+        {featured.map((event, index) => (
+          <article className={activeSlide === index ? "hero-slide active" : "hero-slide"} key={event.id} aria-hidden={activeSlide !== index}>
+            <img src={event.image} alt="" />
+            <div className="slide-shade" />
+            <div className="slide-content">
+              <p className="slide-kicker"><span>{String(index + 1).padStart(2, "0")}</span> Featured experience</p>
+              <h1>{event.title}</h1>
+              <div className="slide-meta">
+                <p><small>Date</small>{event.date}</p>
+                <p><small>Location</small>{event.place}</p>
+                <p><small>Tickets</small>{event.price}</p>
+              </div>
+              <div className="slide-actions">
+                <button className="hero-ticket-button" onClick={() => setSelected(event)}>Get tickets <span>↗</span></button>
+                <button className="details-button" onClick={() => document.getElementById("events")?.scrollIntoView({ behavior: "smooth" })}>Explore event</button>
+              </div>
+            </div>
+          </article>
+        ))}
+        <div className="slider-controls">
+          <div className="slide-dots">
+            {featured.map((event, index) => <button key={event.id} className={activeSlide === index ? "active" : ""} onClick={() => setActiveSlide(index)} aria-label={`Show ${event.title}`} />)}
+          </div>
+          <div className="slide-arrows">
+            <button onClick={() => setActiveSlide((activeSlide - 1 + featured.length) % featured.length)} aria-label="Previous featured event">←</button>
+            <button onClick={() => setActiveSlide((activeSlide + 1) % featured.length)} aria-label="Next featured event">→</button>
           </div>
         </div>
-        <div className="hero-visual" aria-label="Featured event: North Coast Sessions">
-          <img src={events[0].image} alt="Crowd enjoying a live outdoor concert" />
-          <div className="feature-card">
-            <p>Featured this week</p>
-            <h2>North Coast<br />Sessions</h2>
-            <div><span>12 SEP · AYR</span><strong>From £32</strong></div>
-          </div>
-          <div className="ticket-stamp">ALYVRA<br /><small>LIVE</small></div>
-        </div>
+        <label className="floating-search">
+          <SearchIcon />
+          <span><small>Find your next experience</small><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search events, artists or places" aria-label="Search events" /></span>
+          <button onClick={() => document.getElementById("events")?.scrollIntoView({ behavior: "smooth" })}>Search <b>↗</b></button>
+        </label>
+      </section>
+
+      <section className="intro-marquee" aria-label="Alyvra promise">
+        <p>Discover more.</p><span>✦</span><p>Go somewhere.</p><span>✦</span><p>Feel everything.</p>
       </section>
 
       <section className="events-section" id="events">
