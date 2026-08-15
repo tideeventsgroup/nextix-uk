@@ -81,7 +81,6 @@ function SearchIcon() {
 export default function Home() {
   const [category, setCategory] = useState("All events");
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<(typeof events)[number] | null>(null);
   const [activeSlide, setActiveSlide] = useState(0);
 
   const featured = events.slice(0, 3);
@@ -116,7 +115,7 @@ export default function Home() {
                 <p><small>Tickets</small>{event.price}</p>
               </div>
               <div className="slide-actions">
-                <button className="hero-ticket-button" onClick={() => setSelected(event)}>Get tickets <span>↗</span></button>
+                <a className="hero-ticket-button" href={`/events/${eventSlug(event.title)}`}>Get tickets <span>↗</span></a>
                 <a className="details-button" href={`/events/${eventSlug(event.title)}`}>Explore event</a>
               </div>
             </div>
@@ -156,16 +155,16 @@ export default function Home() {
           <div className="event-grid">
             {visibleEvents.map((event) => (
               <article className="event-card" key={event.id}>
-                <button className="event-image" onClick={() => setSelected(event)} aria-label={`View tickets for ${event.title}`}>
+                <a className="event-image" href={`/events/${eventSlug(event.title)}`} aria-label={`View ${event.title}`}>
                   <img src={event.image} alt="" />
                   <span className="badge">{event.badge}</span>
                   <span className="save" aria-hidden="true">♡</span>
-                </button>
+                </a>
                 <div className="event-info">
                   <p className="event-date">{event.date} · {event.time}</p>
                   <h3>{event.title}</h3>
                   <p className="location">{event.place}</p>
-                  <div><strong>{event.price}</strong><a className="event-details" href={`/events/${eventSlug(event.title)}`}>Details</a><button onClick={() => setSelected(event)}>Get tickets</button></div>
+                  <div><strong>{event.price}</strong><a className="event-details" href={`/events/${eventSlug(event.title)}`}>View event</a><a className="card-ticket-link" href={`/events/${eventSlug(event.title)}`}>Tickets</a></div>
                 </div>
               </article>
             ))}
@@ -179,20 +178,6 @@ export default function Home() {
         <div className="metric"><strong>2.4m</strong><span>tickets delivered</span></div>
       </section>
 
-      {selected && (
-        <div className="modal-backdrop" role="presentation" onMouseDown={() => setSelected(null)}>
-          <section className="ticket-panel" role="dialog" aria-modal="true" aria-labelledby="ticket-title" onMouseDown={(e) => e.stopPropagation()}>
-            <button className="close" onClick={() => setSelected(null)} aria-label="Close">×</button>
-            <p className="eyebrow">Choose your tickets</p>
-            <h2 id="ticket-title">{selected.title}</h2>
-            <p>{selected.date} · {selected.time}<br />{selected.place}</p>
-            <div className="ticket-option"><div><strong>General admission</strong><span>Mobile ticket · Instant delivery</span></div><b>{selected.price.replace("From ", "")}</b></div>
-            <label>Quantity<select defaultValue="1" aria-label="Ticket quantity"><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
-            <button className="checkout-button">Continue to checkout <span>→</span></button>
-            <small>Secure checkout · Clear pricing · Easy ticket access</small>
-          </section>
-        </div>
-      )}
     </main>
   );
 }
