@@ -731,6 +731,13 @@ body:has(.account-page) .header-stack,body:has(.account-page)>.platform-footer {
 .auth-submit b { font-size:20px; }
 .auth-create { font-size:12px; }
 .auth-panel>footer { font-size:10px; }
+@media(min-width:901px){
+  .account-page { grid-template-columns:minmax(0,1fr) minmax(520px,1fr); }
+  .auth-panel { padding-left:clamp(42px,5vw,78px); padding-right:clamp(42px,5vw,78px); }
+  .auth-panel-inner { max-width:520px; }
+  .auth-intro { max-width:500px; }
+  .social-signin { gap:12px; }
+}
 @media(min-width:901px) and (max-height:680px){
   .auth-panel h2 { font-size:38px; }
   .social-signin button,.auth-submit { font-size:12px; }
