@@ -137,7 +137,7 @@ export default function Home() {
         </label>
       </section>
 
-      <section className="intro-marquee" aria-label="Alyvra promise">
+      <section className="intro-marquee" aria-label="NexTix promise">
         <p>Discover more.</p><span>✦</span><p>Go somewhere.</p><span>✦</span><p>Feel everything.</p>
       </section>
 
@@ -174,7 +174,7 @@ export default function Home() {
 
       <section className="organiser-strip" id="organisers">
         <div><p className="eyebrow">Built for brilliant events</p><h2>Your event.<br />Beautifully handled.</h2></div>
-        <div className="organiser-copy"><p>Sell tickets, know your audience and run your event with confidence—all from one thoughtful platform.</p><button className="light-button">Explore Alyvra for organisers <span>→</span></button></div>
+        <div className="organiser-copy"><p>Sell tickets, know your audience and run your event with confidence—all from one thoughtful platform.</p><button className="light-button">Explore NexTix for organisers <span>→</span></button></div>
         <div className="metric"><strong>2.4m</strong><span>tickets delivered</span></div>
       </section>
 

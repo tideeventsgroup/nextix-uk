@@ -14,15 +14,14 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(origin),
-    title: "Alyvra — Good events start here",
-    description: "Discover live music, festivals, theatre and unforgettable experiences with Alyvra.",
-    icons: { icon: "/alyvra-logo.png", shortcut: "/alyvra-logo.png" },
+    title: "NexTix — Good events start here",
+    description: "Discover live music, festivals, theatre and unforgettable experiences with NexTix.",
+    icons: { icon: "/nextix-logo.png", shortcut: "/nextix-logo.png" },
     openGraph: {
-      title: "Alyvra — Good events start here",
+      title: "NexTix — Good events start here",
       description: "Discover live music, festivals, theatre and unforgettable experiences.",
-      images: [{ url: `${origin}/og.png`, width: 1728, height: 910, alt: "Alyvra — Good events start here" }],
     },
-    twitter: { card: "summary_large_image", images: [`${origin}/og.png`] },
+    twitter: { card: "summary" },
   };
 }
 
