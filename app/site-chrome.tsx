@@ -5,22 +5,25 @@ import { useState } from "react";
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   return (
-    <header className="site-header">
-      <a className="brand" href="/" aria-label="NexTix home"><img src="/nextix-logo.png" alt="NexTix" /></a>
-      <nav className={open ? "nav open" : "nav"} aria-label="Primary navigation">
-        <a href="/events" onClick={() => setOpen(false)}>Find events</a>
-        <a href="/organisers" onClick={() => setOpen(false)}>For organisers</a>
-        <a href="/about" onClick={() => setOpen(false)}>About</a>
-        <a href="/help" onClick={() => setOpen(false)}>Help</a>
+    <>
+      <header className="site-header">
+        <a className="brand" href="/" aria-label="NexTix home"><img src="/nextix-logo.png" alt="NexTix" /></a>
+        <form className="header-search" action="/events" role="search">
+          <span aria-hidden="true" />
+          <input name="q" type="search" placeholder="Search events, artists or places" aria-label="Search events, artists or places" />
+          <button type="submit" aria-label="Submit search">→</button>
+        </form>
+        <button className="mega-trigger" aria-controls="mega-menu" aria-expanded={open} onClick={() => setOpen(!open)}><span>{open ? "Close" : "Menu"}</span><i aria-hidden="true">{open ? "×" : "＋"}</i></button>
+        <div className="header-actions"><a className="header-saved" href="/saved" aria-label="Saved events">♡</a><a className="text-button" href="/my-tickets">My tickets</a><a className="primary-button" href="/organisers">List your event</a></div>
+      </header>
+      <nav id="mega-menu" className={open ? "mega-menu open" : "mega-menu"} aria-label="Main menu">
+        <div className="mega-feature"><p>Featured this week</p><h2>North Coast<br/>Sessions</h2><span>12 September · Ayr</span><a href="/events/north-coast-sessions" onClick={() => setOpen(false)}>Explore event ↗</a></div>
+        <div className="mega-group"><p>Discover</p><a href="/events" onClick={() => setOpen(false)}>All events</a><a href="/events?q=Music" onClick={() => setOpen(false)}>Music</a><a href="/events?q=Family" onClick={() => setOpen(false)}>Family days</a><a href="/venues" onClick={() => setOpen(false)}>Venues</a></div>
+        <div className="mega-group"><p>Your tickets</p><a href="/my-tickets" onClick={() => setOpen(false)}>My tickets</a><a href="/saved" onClick={() => setOpen(false)}>Saved events</a><a href="/account" onClick={() => setOpen(false)}>Your account</a><a href="/help" onClick={() => setOpen(false)}>Get help</a></div>
+        <div className="mega-group"><p>For organisers</p><a href="/organisers" onClick={() => setOpen(false)}>Sell tickets</a><a href="/organisers#features" onClick={() => setOpen(false)}>Platform features</a><a href="/organisers#pricing" onClick={() => setOpen(false)}>Pricing</a><a href="/contact" onClick={() => setOpen(false)}>Talk to our team</a></div>
+        <div className="mega-foot"><span>Good events start here.</span><div><a href="/about" onClick={() => setOpen(false)}>About NexTix</a><a href="/contact" onClick={() => setOpen(false)}>Contact</a></div></div>
       </nav>
-      <form className="header-search" action="/events" role="search">
-        <span aria-hidden="true" />
-        <input name="q" type="search" placeholder="Search events or places" aria-label="Search events or places" />
-        <button type="submit" aria-label="Submit search">→</button>
-      </form>
-      <div className="header-actions"><a className="header-saved" href="/saved" aria-label="Saved events">♡</a><a className="text-button" href="/my-tickets">My tickets</a><a className="primary-button" href="/organisers">List your event</a></div>
-      <button className="menu-button" aria-label="Toggle menu" aria-expanded={open} onClick={() => setOpen(!open)}><span /><span /></button>
-    </header>
+    </>
   );
 }
 
