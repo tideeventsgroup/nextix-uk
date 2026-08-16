@@ -629,6 +629,8 @@ footer { margin:0 2.2vw; padding-left:2.5vw; padding-right:2.5vw; border-bottom-
 .utility-bar { height:32px; padding:0 3vw; display:flex; align-items:center; justify-content:space-between; background:var(--ink); color:#d0d5dd; font-size:10px; font-weight:750; }
 .utility-bar>span:before { content:""; display:inline-block; width:6px; height:6px; margin-right:8px; border-radius:50%; background:var(--cyan); }
 .utility-bar nav { display:flex; align-items:center; gap:24px; }.utility-bar a:hover { color:white; }
+.utility-promise { display:flex; align-items:center; gap:20px; }.utility-promise span { display:flex; align-items:center; gap:7px; }.utility-promise span:before { content:"✓"; width:14px; height:14px; display:grid; place-items:center; border-radius:50%; background:rgba(139,126,255,.2); color:#b9b1ff; font-size:8px; font-weight:950; }.utility-bar .utility-sell { padding:4px 9px; border-radius:5px; background:#6558e8; color:white; }.utility-sell b { margin-left:3px; }
+@media(max-width:1050px){.utility-promise span:nth-child(n+2){display:none}.utility-bar nav{gap:16px}}
 .header-stack .site-header { position:relative; left:auto; right:auto; height:74px; margin:0; padding:0 3vw; gap:24px; border:0; border-radius:0; background:white; box-shadow:none; backdrop-filter:none; }
 .header-stack .brand { flex:0 0 auto; }.header-stack .brand img { width:132px; }
 .market-search { flex:1; max-width:760px; height:50px; display:grid; grid-template-columns:minmax(190px,1fr) 190px 116px; align-items:stretch; border:1px solid #cfd4dc; border-radius:12px; background:white; overflow:hidden; }

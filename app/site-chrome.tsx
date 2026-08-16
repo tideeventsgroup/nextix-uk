@@ -51,7 +51,7 @@ export function SiteHeader() {
   }
   return (
     <div className="header-stack">
-      <div className="utility-bar"><span>UK events</span><nav aria-label="Utility navigation"><a href="/help">Help</a><a href="/saved">Gift an experience</a><a href="/organisers">Sell tickets</a></nav></div>
+      <div className="utility-bar"><div className="utility-promise"><span>Secure checkout</span><span>Mobile-ready tickets</span><span>Official face-value resale</span></div><nav aria-label="Utility navigation"><a href="/events">What’s on</a><a href="/my-tickets">My tickets</a><a href="/help">Help centre</a><a className="utility-sell" href="/organisers">List your event <b>↗</b></a></nav></div>
       <header className="site-header">
         <a className="brand" href="/" aria-label="Crowdloop home"><img src="/crowdloop-logo.png" alt="Crowdloop" /></a>
         <form className="market-search" action="/events" role="search">
@@ -59,7 +59,7 @@ export function SiteHeader() {
           <div className="location-field"><span><small>Location</small><input value={location} onChange={event=>{setLocation(event.target.value);setCoords(null);}} onFocus={()=>places.length>0&&setPlacesOpen(true)} name="location" placeholder="Venue, postcode or place" autoComplete="off" role="combobox" aria-expanded={placesOpen} aria-controls="place-results" aria-autocomplete="list" aria-label="Search for a venue, postcode or place" /></span><button type="button" onClick={useCurrentLocation} disabled={locating} aria-label="Use my current location">{locating?"…":"⌖"}</button>{coords&&<><input type="hidden" name="lat" value={coords.lat}/><input type="hidden" name="lon" value={coords.lon}/></>}{(placesOpen||placesLoading)&&<div className="place-results" id="place-results" role="listbox">{placesLoading&&<p>Finding places…</p>}{!placesLoading&&places.map(place=><button type="button" role="option" key={`${place.lat}-${place.lon}`} onClick={()=>{setLocation([place.label,place.detail].filter(Boolean).join(", "));setCoords({lat:place.lat,lon:place.lon});setPlacesOpen(false);}}><strong>{place.label}</strong><span>{place.detail}</span></button>)}</div>}</div>
           <button type="submit">Find events</button>
         </form>
-        <div className="header-actions"><a className="header-saved" href="/saved" aria-label="Saved events">♡</a><a className="header-ticket-link" href="/my-tickets"><small>Your orders</small><strong>My tickets</strong></a><a className="account-link" href="/account" aria-label="Account"><span aria-hidden="true">N</span><strong>Account</strong></a></div>
+        <div className="header-actions"><a className="header-saved" href="/saved" aria-label="Saved events">♡</a><a className="header-ticket-link" href="/my-tickets"><small>Your orders</small><strong>My tickets</strong></a><a className="account-link" href="/account" aria-label="Account"><span aria-hidden="true">C</span><strong>Account</strong></a></div>
         <button className="mobile-nav-trigger" aria-controls="mobile-nav" aria-expanded={open} onClick={() => setOpen(!open)}><span/><span/><span/></button>
       </header>
       <nav id="mobile-nav" className={open ? "category-nav open" : "category-nav"} aria-label="Event categories">
