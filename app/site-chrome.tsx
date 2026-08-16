@@ -5,25 +5,22 @@ import { useState } from "react";
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   return (
-    <>
+    <div className="header-stack">
+      <div className="utility-bar"><span>UK events</span><nav aria-label="Utility navigation"><a href="/help">Help</a><a href="/saved">Gift an experience</a><a href="/organisers">Sell tickets</a></nav></div>
       <header className="site-header">
         <a className="brand" href="/" aria-label="NexTix home"><img src="/nextix-logo.png" alt="NexTix" /></a>
-        <form className="header-search" action="/events" role="search">
-          <span aria-hidden="true" />
-          <input name="q" type="search" placeholder="Search events, artists or places" aria-label="Search events, artists or places" />
-          <button type="submit" aria-label="Submit search">→</button>
+        <form className="market-search" action="/events" role="search">
+          <label><span aria-hidden="true" className="market-search-icon"/><small>Search</small><input name="q" type="search" placeholder="Artist, event or venue" aria-label="Search by artist, event or venue" /></label>
+          <label className="location-field"><small>Location</small><select name="location" aria-label="Location"><option value="">All locations</option><option>Ayr</option><option>Glasgow</option><option>Edinburgh</option><option>Dundee</option><option>Stirling</option><option>Aberdeen</option></select></label>
+          <button type="submit">Find events</button>
         </form>
-        <button className="mega-trigger" aria-controls="mega-menu" aria-expanded={open} onClick={() => setOpen(!open)}><span>{open ? "Close" : "Menu"}</span><i aria-hidden="true">{open ? "×" : "＋"}</i></button>
-        <div className="header-actions"><a className="header-saved" href="/saved" aria-label="Saved events">♡</a><a className="text-button" href="/my-tickets">My tickets</a><a className="primary-button" href="/organisers">List your event</a></div>
+        <div className="header-actions"><a className="header-saved" href="/saved" aria-label="Saved events">♡</a><a className="header-ticket-link" href="/my-tickets"><small>Your orders</small><strong>My tickets</strong></a><a className="account-link" href="/account" aria-label="Account"><span aria-hidden="true">N</span><strong>Account</strong></a></div>
+        <button className="mobile-nav-trigger" aria-controls="mobile-nav" aria-expanded={open} onClick={() => setOpen(!open)}><span/><span/><span/></button>
       </header>
-      <nav id="mega-menu" className={open ? "mega-menu open" : "mega-menu"} aria-label="Main menu">
-        <div className="mega-feature"><p>Featured this week</p><h2>North Coast<br/>Sessions</h2><span>12 September · Ayr</span><a href="/events/north-coast-sessions" onClick={() => setOpen(false)}>Explore event ↗</a></div>
-        <div className="mega-group"><p>Discover</p><a href="/events" onClick={() => setOpen(false)}>All events</a><a href="/events?q=Music" onClick={() => setOpen(false)}>Music</a><a href="/events?q=Family" onClick={() => setOpen(false)}>Family days</a><a href="/venues" onClick={() => setOpen(false)}>Venues</a></div>
-        <div className="mega-group"><p>Your tickets</p><a href="/my-tickets" onClick={() => setOpen(false)}>My tickets</a><a href="/saved" onClick={() => setOpen(false)}>Saved events</a><a href="/account" onClick={() => setOpen(false)}>Your account</a><a href="/help" onClick={() => setOpen(false)}>Get help</a></div>
-        <div className="mega-group"><p>For organisers</p><a href="/organisers" onClick={() => setOpen(false)}>Sell tickets</a><a href="/organisers#features" onClick={() => setOpen(false)}>Platform features</a><a href="/organisers#pricing" onClick={() => setOpen(false)}>Pricing</a><a href="/contact" onClick={() => setOpen(false)}>Talk to our team</a></div>
-        <div className="mega-foot"><span>Good events start here.</span><div><a href="/about" onClick={() => setOpen(false)}>About NexTix</a><a href="/contact" onClick={() => setOpen(false)}>Contact</a></div></div>
+      <nav id="mobile-nav" className={open ? "category-nav open" : "category-nav"} aria-label="Event categories">
+        <a href="/events" onClick={() => setOpen(false)}>All events</a><a href="/events?q=Music" onClick={() => setOpen(false)}>Music</a><a href="/events?q=Sport" onClick={() => setOpen(false)}>Sport</a><a href="/events?q=Theatre" onClick={() => setOpen(false)}>Theatre & comedy</a><a href="/events?q=Family" onClick={() => setOpen(false)}>Family</a><a href="/events?q=Festival" onClick={() => setOpen(false)}>Festivals</a><a href="/venues" onClick={() => setOpen(false)}>Cities & venues</a><a className="organiser-nav-link" href="/organisers" onClick={() => setOpen(false)}>For organisers ↗</a>
       </nav>
-    </>
+    </div>
   );
 }
 
