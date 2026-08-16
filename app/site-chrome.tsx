@@ -4,6 +4,19 @@ import { useState } from "react";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [location, setLocation] = useState("");
+  const [coords, setCoords] = useState<{lat:number;lon:number}|null>(null);
+  const [locating, setLocating] = useState(false);
+
+  function useCurrentLocation() {
+    if (!navigator.geolocation) return;
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      ({coords: position}) => { setCoords({lat:position.latitude,lon:position.longitude}); setLocation("Near me"); setLocating(false); },
+      () => { setLocation(""); setLocating(false); },
+      { enableHighAccuracy:false, timeout:8000, maximumAge:300000 }
+    );
+  }
   return (
     <div className="header-stack">
       <div className="utility-bar"><span>UK events</span><nav aria-label="Utility navigation"><a href="/help">Help</a><a href="/saved">Gift an experience</a><a href="/organisers">Sell tickets</a></nav></div>
@@ -11,7 +24,7 @@ export function SiteHeader() {
         <a className="brand" href="/" aria-label="NexTix home"><img src="/nextix-logo.png" alt="NexTix" /></a>
         <form className="market-search" action="/events" role="search">
           <label><span aria-hidden="true" className="market-search-icon"/><small>Search</small><input name="q" type="search" placeholder="Artist, event or venue" aria-label="Search by artist, event or venue" /></label>
-          <label className="location-field"><small>Location</small><select name="location" aria-label="Location"><option value="">All locations</option><option>Ayr</option><option>Glasgow</option><option>Edinburgh</option><option>Dundee</option><option>Stirling</option><option>Aberdeen</option></select></label>
+          <div className="location-field"><span><small>Location</small><select name="location" value={location} onChange={event=>{setLocation(event.target.value);setCoords(null);}} aria-label="Location"><option value="">All locations</option>{location==="Near me"&&<option>Near me</option>}<option>Ayr</option><option>Glasgow</option><option>Edinburgh</option><option>Dundee</option><option>Stirling</option><option>Aberdeen</option></select></span><button type="button" onClick={useCurrentLocation} disabled={locating} aria-label="Use my current location">{locating?"…":"⌖"}</button>{coords&&<><input type="hidden" name="lat" value={coords.lat}/><input type="hidden" name="lon" value={coords.lon}/></>}</div>
           <button type="submit">Find events</button>
         </form>
         <div className="header-actions"><a className="header-saved" href="/saved" aria-label="Saved events">♡</a><a className="header-ticket-link" href="/my-tickets"><small>Your orders</small><strong>My tickets</strong></a><a className="account-link" href="/account" aria-label="Account"><span aria-hidden="true">N</span><strong>Account</strong></a></div>
