@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { useSavedEvents } from "./use-saved-events";
 
 type PlaceResult = { label:string; detail:string; lat:number; lon:number };
 
@@ -18,6 +19,8 @@ export function SiteHeader() {
   const [places, setPlaces] = useState<PlaceResult[]>([]);
   const [placesOpen, setPlacesOpen] = useState(false);
   const [placesLoading, setPlacesLoading] = useState(false);
+  const [activeOption, setActiveOption] = useState(-1);
+  const { saved } = useSavedEvents();
 
   useEffect(() => {
     if (location.trim().length < 3 || coords) { setPlaces([]); setPlacesOpen(false); return; }
@@ -29,14 +32,30 @@ export function SiteHeader() {
         const data = await response.json();
         setPlaces((data.features || []).map((feature: {properties:Record<string,string>;geometry:{coordinates:[number,number]}}) => ({...formatPlace(feature.properties), lon:feature.geometry.coordinates[0], lat:feature.geometry.coordinates[1]})));
         setPlacesOpen(true);
+        setActiveOption(-1);
       } catch (error) { if ((error as Error).name !== "AbortError") setPlaces([]); }
       finally { setPlacesLoading(false); }
     }, 350);
     return () => { window.clearTimeout(timer); controller.abort(); };
   }, [location, coords]);
 
+  function selectPlace(place: PlaceResult) {
+    setLocation([place.label, place.detail].filter(Boolean).join(", "));
+    setCoords({ lat: place.lat, lon: place.lon });
+    setPlacesOpen(false);
+    setActiveOption(-1);
+  }
+
+  function onLocationKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (!placesOpen || places.length === 0) return;
+    if (event.key === "ArrowDown") { event.preventDefault(); setActiveOption((current) => (current + 1) % places.length); }
+    else if (event.key === "ArrowUp") { event.preventDefault(); setActiveOption((current) => (current - 1 + places.length) % places.length); }
+    else if (event.key === "Enter" && activeOption >= 0) { event.preventDefault(); selectPlace(places[activeOption]); }
+    else if (event.key === "Escape") { setPlacesOpen(false); setActiveOption(-1); }
+  }
+
   function useCurrentLocation() {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) { setLocation(""); return; }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       async ({coords: position}) => {
@@ -56,10 +75,46 @@ export function SiteHeader() {
         <a className="brand" href="/" aria-label="Crowdloop home"><img src="/crowdloop-logo.png" alt="Crowdloop" /></a>
         <form className="market-search" action="/events" role="search">
           <label><span aria-hidden="true" className="market-search-icon"/><small>Search</small><input name="q" type="search" placeholder="Artist, event or venue" aria-label="Search by artist, event or venue" /></label>
-          <div className="location-field"><span><small>Location</small><input value={location} onChange={event=>{setLocation(event.target.value);setCoords(null);}} onFocus={()=>places.length>0&&setPlacesOpen(true)} name="location" placeholder="Venue, postcode or place" autoComplete="off" role="combobox" aria-expanded={placesOpen} aria-controls="place-results" aria-autocomplete="list" aria-label="Search for a venue, postcode or place" /></span><button type="button" onClick={useCurrentLocation} disabled={locating} aria-label="Use my current location">{locating?"…":"⌖"}</button>{coords&&<><input type="hidden" name="lat" value={coords.lat}/><input type="hidden" name="lon" value={coords.lon}/></>}{(placesOpen||placesLoading)&&<div className="place-results" id="place-results" role="listbox">{placesLoading&&<p>Finding places…</p>}{!placesLoading&&places.map(place=><button type="button" role="option" key={`${place.lat}-${place.lon}`} onClick={()=>{setLocation([place.label,place.detail].filter(Boolean).join(", "));setCoords({lat:place.lat,lon:place.lon});setPlacesOpen(false);}}><strong>{place.label}</strong><span>{place.detail}</span></button>)}</div>}</div>
+          <div className="location-field">
+            <span>
+              <small>Location</small>
+              <input
+                value={location}
+                onChange={(event) => { setLocation(event.target.value); setCoords(null); }}
+                onFocus={() => places.length > 0 && setPlacesOpen(true)}
+                onKeyDown={onLocationKeyDown}
+                name="location"
+                placeholder="Venue, postcode or place"
+                autoComplete="off"
+                role="combobox"
+                aria-expanded={placesOpen}
+                aria-controls="place-results"
+                aria-autocomplete="list"
+                aria-activedescendant={activeOption >= 0 ? `place-option-${activeOption}` : undefined}
+                aria-label="Search for a venue, postcode or place"
+              />
+            </span>
+            <button type="button" onClick={useCurrentLocation} disabled={locating} aria-label="Use my current location">{locating ? "…" : "⌖"}</button>
+            {coords && <><input type="hidden" name="lat" value={coords.lat} /><input type="hidden" name="lon" value={coords.lon} /></>}
+            {(placesOpen || placesLoading) && (
+              <div className="place-results" id="place-results" role="listbox">
+                {placesLoading && <p>Finding places…</p>}
+                {!placesLoading && places.length === 0 && <p>No places found. Try a different search.</p>}
+                {!placesLoading && places.map((place, index) => (
+                  <button type="button" role="option" id={`place-option-${index}`} aria-selected={activeOption === index} key={`${place.lat}-${place.lon}`} className={activeOption === index ? "active" : ""} onClick={() => selectPlace(place)}>
+                    <strong>{place.label}</strong><span>{place.detail}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <button type="submit">Find events</button>
         </form>
-        <div className="header-actions"><a className="header-saved" href="/saved" aria-label="Saved events">♡</a><a className="header-ticket-link" href="/my-tickets"><small>Your orders</small><strong>My tickets</strong></a><a className="account-link" href="/account" aria-label="Account"><span aria-hidden="true">C</span><strong>Account</strong></a></div>
+        <div className="header-actions">
+          <a className="header-saved" href="/saved" aria-label={`Saved events${saved.length ? ` (${saved.length})` : ""}`}>♡{saved.length > 0 && <span className="saved-count">{saved.length}</span>}</a>
+          <a className="header-ticket-link" href="/my-tickets"><small>Your orders</small><strong>My tickets</strong></a>
+          <a className="account-link" href="/account" aria-label="Account"><span aria-hidden="true">C</span><strong>Account</strong></a>
+        </div>
         <button className="mobile-nav-trigger" aria-controls="mobile-nav" aria-expanded={open} onClick={() => setOpen(!open)}><span/><span/><span/></button>
       </header>
       <nav id="mobile-nav" className={open ? "category-nav open" : "category-nav"} aria-label="Event categories">
@@ -77,6 +132,23 @@ const footerGroups = [
 ];
 
 export function SiteFooter() {
+  const [newsletterState, setNewsletterState] = useState<"idle" | "success" | "error">("idle");
+  const [newsletterMessage, setNewsletterMessage] = useState("");
+
+  function submitNewsletter(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const email = String(data.get("email") || "").trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setNewsletterState("error");
+      setNewsletterMessage("Enter a valid email address.");
+      return;
+    }
+    setNewsletterState("success");
+    setNewsletterMessage("You’re subscribed. Watch your inbox for event recommendations.");
+    event.currentTarget.reset();
+  }
+
   return (
     <footer className="platform-footer">
       <section className="footer-cta">
@@ -84,10 +156,24 @@ export function SiteFooter() {
         <div><p>Ticketing, planning and live operations—connected from first announcement to final report.</p><a href="/organisers">Explore the platform <span>↗</span></a></div>
       </section>
       <div className="footer-main">
-        <div className="footer-brand"><img src="/crowdloop-logo.png" alt="Crowdloop" /><p>Good events start here. Discover what’s on, secure your place and keep every ticket close.</p><form className="footer-newsletter"><strong>Get the good stuff first.</strong><label><input type="email" placeholder="Email address" aria-label="Email address"/><button type="submit" aria-label="Subscribe">Join <span>→</span></button></label><small>Occasional event recommendations. No noise.</small></form></div>
+        <div className="footer-brand">
+          <img src="/crowdloop-logo.png" alt="Crowdloop" />
+          <p>Good events start here. Discover what’s on, secure your place and keep every ticket close.</p>
+          <form className="footer-newsletter" onSubmit={submitNewsletter}>
+            <strong>Get the good stuff first.</strong>
+            <label><input type="email" name="email" placeholder="Email address" aria-label="Email address" required /><button type="submit" aria-label="Subscribe">Join <span>→</span></button></label>
+            {newsletterState !== "idle" && <p className={newsletterState === "success" ? "newsletter-message success" : "newsletter-message"} role="status">{newsletterMessage}</p>}
+            <small>Occasional event recommendations. No noise.</small>
+          </form>
+        </div>
         <div className="footer-links">{footerGroups.map((group) => <div key={group.title}><h3>{group.title}</h3>{group.links.map(([label, href]) => <a href={href} key={label}>{label}</a>)}</div>)}</div>
       </div>
-      <div className="footer-bottom"><span>© 2026 Crowdloop Technologies Ltd</span><div><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/accessibility">Accessibility</a></div><div className="socials"><a href="/contact" aria-label="Instagram">ig</a><a href="/contact" aria-label="LinkedIn">in</a><a href="/contact" aria-label="TikTok">tk</a></div><a href="#top">Back to top ↑</a></div>
+      <div className="footer-bottom">
+        <span>© 2026 Crowdloop Technologies Ltd</span>
+        <div><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/accessibility">Accessibility</a></div>
+        <p className="socials-note">Official social profiles coming soon</p>
+        <a href="#top">Back to top ↑</a>
+      </div>
     </footer>
   );
 }
