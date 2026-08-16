@@ -1,18 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+type PlaceResult = { label:string; detail:string; lat:number; lon:number };
+
+function formatPlace(properties: Record<string,string> = {}) {
+  const label = properties.name || properties.street || properties.city || properties.county || "Place";
+  const parts = [properties.street !== label ? properties.street : "", properties.district, properties.city !== label ? properties.city : "", properties.county !== label ? properties.county : "", properties.postcode].filter(Boolean);
+  return { label, detail:[...new Set(parts)].join(", ") };
+}
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [location, setLocation] = useState("");
   const [coords, setCoords] = useState<{lat:number;lon:number}|null>(null);
   const [locating, setLocating] = useState(false);
+  const [places, setPlaces] = useState<PlaceResult[]>([]);
+  const [placesOpen, setPlacesOpen] = useState(false);
+  const [placesLoading, setPlacesLoading] = useState(false);
+
+  useEffect(() => {
+    if (location.trim().length < 3 || coords) { setPlaces([]); setPlacesOpen(false); return; }
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setPlacesLoading(true);
+      try {
+        const response = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(location)}&limit=6&lang=en&countrycode=GB`, {signal:controller.signal});
+        const data = await response.json();
+        setPlaces((data.features || []).map((feature: {properties:Record<string,string>;geometry:{coordinates:[number,number]}}) => ({...formatPlace(feature.properties), lon:feature.geometry.coordinates[0], lat:feature.geometry.coordinates[1]})));
+        setPlacesOpen(true);
+      } catch (error) { if ((error as Error).name !== "AbortError") setPlaces([]); }
+      finally { setPlacesLoading(false); }
+    }, 350);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [location, coords]);
 
   function useCurrentLocation() {
     if (!navigator.geolocation) return;
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
-      ({coords: position}) => { setCoords({lat:position.latitude,lon:position.longitude}); setLocation("Near me"); setLocating(false); },
+      async ({coords: position}) => {
+        setCoords({lat:position.latitude,lon:position.longitude}); setPlacesOpen(false);
+        try { const response=await fetch(`https://photon.komoot.io/reverse?lat=${position.latitude}&lon=${position.longitude}&lang=en`); const data=await response.json(); const display=formatPlace(data.features?.[0]?.properties); setLocation([display.label,display.detail].filter(Boolean).join(", ")); }
+        catch { setLocation("Current location"); }
+        setLocating(false);
+      },
       () => { setLocation(""); setLocating(false); },
       { enableHighAccuracy:false, timeout:8000, maximumAge:300000 }
     );
@@ -24,7 +56,7 @@ export function SiteHeader() {
         <a className="brand" href="/" aria-label="NexTix home"><img src="/nextix-logo.png" alt="NexTix" /></a>
         <form className="market-search" action="/events" role="search">
           <label><span aria-hidden="true" className="market-search-icon"/><small>Search</small><input name="q" type="search" placeholder="Artist, event or venue" aria-label="Search by artist, event or venue" /></label>
-          <div className="location-field"><span><small>Location</small><select name="location" value={location} onChange={event=>{setLocation(event.target.value);setCoords(null);}} aria-label="Location"><option value="">All locations</option>{location==="Near me"&&<option>Near me</option>}<option>Ayr</option><option>Glasgow</option><option>Edinburgh</option><option>Dundee</option><option>Stirling</option><option>Aberdeen</option></select></span><button type="button" onClick={useCurrentLocation} disabled={locating} aria-label="Use my current location">{locating?"…":"⌖"}</button>{coords&&<><input type="hidden" name="lat" value={coords.lat}/><input type="hidden" name="lon" value={coords.lon}/></>}</div>
+          <div className="location-field"><span><small>Location</small><input value={location} onChange={event=>{setLocation(event.target.value);setCoords(null);}} onFocus={()=>places.length>0&&setPlacesOpen(true)} name="location" placeholder="Venue, postcode or place" autoComplete="off" role="combobox" aria-expanded={placesOpen} aria-controls="place-results" aria-autocomplete="list" aria-label="Search for a venue, postcode or place" /></span><button type="button" onClick={useCurrentLocation} disabled={locating} aria-label="Use my current location">{locating?"…":"⌖"}</button>{coords&&<><input type="hidden" name="lat" value={coords.lat}/><input type="hidden" name="lon" value={coords.lon}/></>}{(placesOpen||placesLoading)&&<div className="place-results" id="place-results" role="listbox">{placesLoading&&<p>Finding places…</p>}{!placesLoading&&places.map(place=><button type="button" role="option" key={`${place.lat}-${place.lon}`} onClick={()=>{setLocation([place.label,place.detail].filter(Boolean).join(", "));setCoords({lat:place.lat,lon:place.lon});setPlacesOpen(false);}}><strong>{place.label}</strong><span>{place.detail}</span></button>)}</div>}</div>
           <button type="submit">Find events</button>
         </form>
         <div className="header-actions"><a className="header-saved" href="/saved" aria-label="Saved events">♡</a><a className="header-ticket-link" href="/my-tickets"><small>Your orders</small><strong>My tickets</strong></a><a className="account-link" href="/account" aria-label="Account"><span aria-hidden="true">N</span><strong>Account</strong></a></div>
