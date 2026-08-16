@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { events } from "../events-data";
 import { useSavedEvents } from "../use-saved-events";
 
@@ -18,6 +18,31 @@ export default function EventsPage() {
   const [sort, setSort] = useState("Recommended");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const { isSaved, toggle } = useSavedEvents();
+  const filtersRef = useRef<HTMLElement>(null);
+  const filterTriggerRef = useRef<HTMLButtonElement>(null);
+  const closeFiltersRef = useRef<HTMLButtonElement>(null);
+
+  function closeFilters() {
+    setFiltersOpen(false);
+    filterTriggerRef.current?.focus();
+  }
+
+  useEffect(() => {
+    if (!filtersOpen) return;
+    closeFiltersRef.current?.focus();
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") { closeFilters(); return; }
+      if (event.key !== "Tab" || !filtersRef.current) return;
+      const focusable = filtersRef.current.querySelectorAll<HTMLElement>("button, [href], input, select, textarea");
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [filtersOpen]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -68,8 +93,8 @@ export default function EventsPage() {
     <nav className="event-category-rail" aria-label="Event types">{categories.map((item) => <button key={item} className={category === item ? "active" : ""} onClick={() => setCategory(item)} aria-pressed={category === item}>{item}</button>)}</nav>
 
     <section className="events-workspace">
-      <aside className={filtersOpen ? "event-filters open" : "event-filters"}>
-        <div className="filter-heading"><div><small>REFINE RESULTS</small><h2>Filters</h2></div><button onClick={() => setFiltersOpen(false)} aria-label="Close filters">×</button></div>
+      <aside className={filtersOpen ? "event-filters open" : "event-filters"} ref={filtersRef} role={filtersOpen ? "dialog" : undefined} aria-modal={filtersOpen ? true : undefined} aria-label={filtersOpen ? "Filters" : undefined}>
+        <div className="filter-heading"><div><small>REFINE RESULTS</small><h2>Filters</h2></div><button ref={closeFiltersRef} onClick={closeFilters} aria-label="Close filters">×</button></div>
         <fieldset><legend>When</legend>{["Any date", "SEP", "OCT"].map((item) => <label key={item}><input type="radio" name="date" checked={month === item} onChange={() => setMonth(item)} /><span>{item === "SEP" ? "September" : item === "OCT" ? "October" : item}</span></label>)}</fieldset>
         <fieldset><legend>Where</legend><select value={city} onChange={(event) => { setCity(event.target.value); setLocationLabel(""); }} aria-label="Filter by location"><option>All locations</option>{Object.keys(cityCoordinates).map((item) => <option key={item}>{item}</option>)}</select><p>For venues, postcodes or places, use the location search in the header.</p></fieldset>
         <fieldset><legend>Price</legend>{priceBands.map((band) => <label key={band}><input type="checkbox" checked={priceFilter.includes(band)} onChange={() => togglePriceBand(band)} /><span>{band}</span></label>)}</fieldset>
@@ -77,7 +102,7 @@ export default function EventsPage() {
       </aside>
 
       <div className="event-results">
-        <div className="results-toolbar"><div><p>{filtered.length} {filtered.length === 1 ? "event" : "events"}</p><span>{city === "All locations" ? "Across Scotland" : `Near ${city}`}</span></div><div><button className="mobile-filter-button" onClick={() => setFiltersOpen(true)}>Filters {activeCount > 0 && <b>{activeCount}</b>}</button><label>Sort by <select value={sort} onChange={(event) => setSort(event.target.value)}><option>Recommended</option><option>Soonest</option><option>Price: low to high</option></select></label></div></div>
+        <div className="results-toolbar"><div><p>{filtered.length} {filtered.length === 1 ? "event" : "events"}</p><span>{city === "All locations" ? "Across Scotland" : `Near ${city}`}</span></div><div><button ref={filterTriggerRef} className="mobile-filter-button" onClick={() => setFiltersOpen(true)} aria-haspopup="dialog">Filters {activeCount > 0 && <b>{activeCount}</b>}</button><label>Sort by <select value={sort} onChange={(event) => setSort(event.target.value)}><option>Recommended</option><option>Soonest</option><option>Price: low to high</option></select></label></div></div>
         <div className="event-list">{filtered.map((event) => <article className="result-card" key={event.slug}>
           <a className="result-image" href={`/events/${event.slug}`}><img src={event.image} alt="" /><span className={event.status === "Last few" || event.status === "Selling fast" ? "urgent" : ""}>{event.status}</span></a>
           <div className="result-date"><small>{event.month}</small><strong>{event.dateNum}</strong><span>{event.day}</span></div>
@@ -87,6 +112,6 @@ export default function EventsPage() {
         {!filtered.length && <div className="no-results"><span>⌕</span><h2>No events found</h2><p>Try widening your location or clearing a filter.</p><button onClick={clearFilters}>Show all events</button></div>}
       </div>
     </section>
-    {filtersOpen && <button className="filter-scrim" onClick={() => setFiltersOpen(false)} aria-label="Close filters" />}
+    {filtersOpen && <button className="filter-scrim" onClick={closeFilters} aria-label="Close filters" />}
   </main>;
 }

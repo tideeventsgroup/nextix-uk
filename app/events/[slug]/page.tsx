@@ -13,7 +13,11 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
   const related = relatedEvents(event.slug, event.category);
 
   return <main className="event-detail" id="top">
-    <section className="event-detail-hero"><img src={event.image} alt="" /><div className="event-detail-shade" /><div className="event-detail-heading"><p>{event.detailCategory}</p><h1>{event.title}</h1><div><span>{event.dateLabel}</span><span>{event.venue} · {event.city}</span></div></div></section>
+    <section className="event-detail-hero">
+      <img src={event.image} alt="" /><div className="event-detail-shade" />
+      <nav className="breadcrumb" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/events">Events</a></li><li><a href={`/events?q=${encodeURIComponent(event.category)}`}>{event.category}</a></li><li aria-current="page">{event.title}</li></ol></nav>
+      <div className="event-detail-heading"><p>{event.detailCategory}</p><h1>{event.title}</h1><div><span>{event.dateLabel}</span><span>{event.venue} · {event.city}</span></div></div>
+    </section>
     <section className="event-body">
       <div className="event-main">
         <div className="event-actions-row">
