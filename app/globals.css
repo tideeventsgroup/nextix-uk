@@ -727,6 +727,8 @@ body:has(.account-page) .header-stack,body:has(.account-page)>.platform-footer {
 .auth-panel form input[type=email],.password-field>input { font-size:14px; }
 .password-field button { font-size:11px; }
 .remember-me { font-size:12px!important; }
+.auth-panel form>label.remember-me { min-height:20px; display:flex!important; align-items:center; gap:9px; line-height:1.25; cursor:pointer; }
+.auth-panel .remember-me input[type=checkbox] { width:17px!important; height:17px!important; min-width:17px; margin:0!important; padding:0!important; display:inline-block!important; flex:0 0 17px; border:1px solid #c8c5cf; border-radius:4px; accent-color:#5c4ee5; box-shadow:none!important; }
 .auth-submit { font-size:14px; }
 .auth-submit b { font-size:20px; }
 .auth-create { font-size:12px; }
