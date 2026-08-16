@@ -13,6 +13,11 @@ export function SiteHeader() {
         <a href="/about" onClick={() => setOpen(false)}>About</a>
         <a href="/help" onClick={() => setOpen(false)}>Help</a>
       </nav>
+      <form className="header-search" action="/events" role="search">
+        <span aria-hidden="true" />
+        <input name="q" type="search" placeholder="Search events or places" aria-label="Search events or places" />
+        <button type="submit" aria-label="Submit search">→</button>
+      </form>
       <div className="header-actions"><a className="header-saved" href="/saved" aria-label="Saved events">♡</a><a className="text-button" href="/my-tickets">My tickets</a><a className="primary-button" href="/organisers">List your event</a></div>
       <button className="menu-button" aria-label="Toggle menu" aria-expanded={open} onClick={() => setOpen(!open)}><span /><span /></button>
     </header>

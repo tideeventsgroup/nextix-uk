@@ -74,13 +74,8 @@ const events = [
   },
 ];
 
-function SearchIcon() {
-  return <span aria-hidden="true" className="search-icon" />;
-}
-
 export default function Home() {
   const [category, setCategory] = useState("All events");
-  const [query, setQuery] = useState("");
   const [activeSlide, setActiveSlide] = useState(0);
 
   const featured = events.slice(0, 3);
@@ -91,13 +86,11 @@ export default function Home() {
   }, [featured.length]);
 
   const visibleEvents = useMemo(() => {
-    const needle = query.trim().toLowerCase();
     return events.filter((event) => {
       const matchesCategory = category === "All events" || event.category === category;
-      const matchesQuery = !needle || `${event.title} ${event.place} ${event.category}`.toLowerCase().includes(needle);
-      return matchesCategory && matchesQuery;
+      return matchesCategory;
     });
-  }, [category, query]);
+  }, [category]);
 
   return (
     <main>
@@ -130,11 +123,6 @@ export default function Home() {
             <button onClick={() => setActiveSlide((activeSlide + 1) % featured.length)} aria-label="Next featured event">→</button>
           </div>
         </div>
-        <label className="floating-search">
-          <SearchIcon />
-          <span><small>Find your next experience</small><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search events, artists or places" aria-label="Search events" /></span>
-          <button onClick={() => document.getElementById("events")?.scrollIntoView({ behavior: "smooth" })}>Search <b>↗</b></button>
-        </label>
       </section>
 
       <section className="intro-marquee" aria-label="NexTix promise">
