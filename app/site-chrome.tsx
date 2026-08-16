@@ -13,16 +13,16 @@ export function SiteHeader() {
         <a href="/about" onClick={() => setOpen(false)}>About</a>
         <a href="/help" onClick={() => setOpen(false)}>Help</a>
       </nav>
-      <div className="header-actions"><a className="text-button" href="/help">Sign in</a><a className="primary-button" href="/organisers">List your event</a></div>
+      <div className="header-actions"><a className="header-saved" href="/saved" aria-label="Saved events">♡</a><a className="text-button" href="/my-tickets">My tickets</a><a className="primary-button" href="/organisers">List your event</a></div>
       <button className="menu-button" aria-label="Toggle menu" aria-expanded={open} onClick={() => setOpen(!open)}><span /><span /></button>
     </header>
   );
 }
 
 const footerGroups = [
-  { title: "Discover", links: [["All events", "/events"], ["Music", "/events?category=music"], ["Food & drink", "/events?category=food"], ["Theatre", "/events?category=theatre"], ["Family", "/events?category=family"]] },
+  { title: "Discover", links: [["All events", "/events"], ["Saved events", "/saved"], ["Venues", "/venues"], ["My tickets", "/my-tickets"], ["Gift an experience", "/saved"]] },
   { title: "Organisers", links: [["Sell tickets", "/organisers"], ["Platform features", "/organisers#features"], ["Pricing", "/organisers#pricing"], ["Event operations", "/organisers#operations"], ["Get started", "/contact"]] },
-  { title: "Alyvra", links: [["About us", "/about"], ["Our values", "/about#values"], ["Careers", "/about#careers"], ["Contact", "/contact"], ["Help centre", "/help"]] },
+  { title: "Alyvra", links: [["About us", "/about"], ["Your account", "/account"], ["Our values", "/about#values"], ["Careers", "/about#careers"], ["Contact", "/contact"], ["Help centre", "/help"]] },
   { title: "Legal & trust", links: [["Terms", "/terms"], ["Privacy", "/privacy"], ["Refund policy", "/refunds"], ["Accessibility", "/accessibility"], ["Cookie settings", "/privacy#cookies"]] },
 ];
 
