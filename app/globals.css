@@ -143,7 +143,7 @@ footer small { grid-column:1/-1; padding-top:28px; border-top:1px solid var(--li
 
 @media (prefers-reduced-motion:reduce) { * { scroll-behavior:auto !important; animation:none !important; transition:none !important; } }
 
-/* Modern NexTix refresh */
+/* Modern Crowdloop refresh */
 :root { --violet:#5b4df5; --cloud:#f4f5f8; --line:#e4e7ec; }
 body { font-family:var(--font-geist), Arial, sans-serif; background:#fafafa; }
 .site-header { height:78px; margin:14px 2.2vw 0; padding:0 24px; border:1px solid rgba(16,24,40,.08); border-radius:18px; background:rgba(255,255,255,.84); backdrop-filter:blur(18px); box-shadow:0 8px 30px rgba(16,24,40,.05); position:absolute; left:0; right:0; }
@@ -729,6 +729,10 @@ body:has(.account-page) .header-stack,body:has(.account-page)>.platform-footer {
 .remember-me { font-size:12px!important; }
 .auth-panel form>label.remember-me { min-height:20px; display:flex!important; align-items:center; gap:9px; line-height:1.25; cursor:pointer; }
 .auth-panel .remember-me input[type=checkbox] { width:17px!important; height:17px!important; min-width:17px; margin:0!important; padding:0!important; display:inline-block!important; flex:0 0 17px; border:1px solid #c8c5cf; border-radius:4px; accent-color:#5c4ee5; box-shadow:none!important; }
+.header-stack .brand img { width:150px; }
+.footer-brand img { width:190px; }
+.auth-brand { width:168px; }
+@media(max-width:760px){.header-stack .brand img { width:118px; }.auth-brand { width:138px; }}
 .auth-submit { font-size:14px; }
 .auth-submit b { font-size:20px; }
 .auth-create { font-size:12px; }

@@ -14,11 +14,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(origin),
-    title: "NexTix — Good events start here",
-    description: "Discover live music, festivals, theatre and unforgettable experiences with NexTix.",
-    icons: { icon: "/nextix-logo.png", shortcut: "/nextix-logo.png" },
+    title: "Crowdloop — Good events start here",
+    description: "Discover live music, festivals, theatre and unforgettable experiences with Crowdloop.",
+    icons: { icon: "/crowdloop-logo.png", shortcut: "/crowdloop-logo.png" },
     openGraph: {
-      title: "NexTix — Good events start here",
+      title: "Crowdloop — Good events start here",
       description: "Discover live music, festivals, theatre and unforgettable experiences.",
     },
     twitter: { card: "summary" },

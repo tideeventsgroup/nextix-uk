@@ -53,7 +53,7 @@ export function SiteHeader() {
     <div className="header-stack">
       <div className="utility-bar"><span>UK events</span><nav aria-label="Utility navigation"><a href="/help">Help</a><a href="/saved">Gift an experience</a><a href="/organisers">Sell tickets</a></nav></div>
       <header className="site-header">
-        <a className="brand" href="/" aria-label="NexTix home"><img src="/nextix-logo.png" alt="NexTix" /></a>
+        <a className="brand" href="/" aria-label="Crowdloop home"><img src="/crowdloop-logo.png" alt="Crowdloop" /></a>
         <form className="market-search" action="/events" role="search">
           <label><span aria-hidden="true" className="market-search-icon"/><small>Search</small><input name="q" type="search" placeholder="Artist, event or venue" aria-label="Search by artist, event or venue" /></label>
           <div className="location-field"><span><small>Location</small><input value={location} onChange={event=>{setLocation(event.target.value);setCoords(null);}} onFocus={()=>places.length>0&&setPlacesOpen(true)} name="location" placeholder="Venue, postcode or place" autoComplete="off" role="combobox" aria-expanded={placesOpen} aria-controls="place-results" aria-autocomplete="list" aria-label="Search for a venue, postcode or place" /></span><button type="button" onClick={useCurrentLocation} disabled={locating} aria-label="Use my current location">{locating?"…":"⌖"}</button>{coords&&<><input type="hidden" name="lat" value={coords.lat}/><input type="hidden" name="lon" value={coords.lon}/></>}{(placesOpen||placesLoading)&&<div className="place-results" id="place-results" role="listbox">{placesLoading&&<p>Finding places…</p>}{!placesLoading&&places.map(place=><button type="button" role="option" key={`${place.lat}-${place.lon}`} onClick={()=>{setLocation([place.label,place.detail].filter(Boolean).join(", "));setCoords({lat:place.lat,lon:place.lon});setPlacesOpen(false);}}><strong>{place.label}</strong><span>{place.detail}</span></button>)}</div>}</div>
@@ -72,7 +72,7 @@ export function SiteHeader() {
 const footerGroups = [
   { title: "Discover", links: [["All events", "/events"], ["Saved events", "/saved"], ["Venues", "/venues"], ["My tickets", "/my-tickets"], ["Gift an experience", "/saved"]] },
   { title: "Organisers", links: [["Sell tickets", "/organisers"], ["Platform features", "/organisers#features"], ["Pricing", "/organisers#pricing"], ["Event operations", "/organisers#operations"], ["Get started", "/contact"]] },
-  { title: "NexTix", links: [["About us", "/about"], ["Your account", "/account"], ["Our values", "/about#values"], ["Careers", "/about#careers"], ["Contact", "/contact"], ["Help centre", "/help"]] },
+  { title: "Crowdloop", links: [["About us", "/about"], ["Your account", "/account"], ["Our values", "/about#values"], ["Careers", "/about#careers"], ["Contact", "/contact"], ["Help centre", "/help"]] },
   { title: "Legal & trust", links: [["Terms", "/terms"], ["Privacy", "/privacy"], ["Refund policy", "/refunds"], ["Accessibility", "/accessibility"], ["Cookie settings", "/privacy#cookies"]] },
 ];
 
@@ -84,10 +84,10 @@ export function SiteFooter() {
         <div><p>Ticketing, planning and live operations—connected from first announcement to final report.</p><a href="/organisers">Explore the platform <span>↗</span></a></div>
       </section>
       <div className="footer-main">
-        <div className="footer-brand"><img src="/nextix-logo.png" alt="NexTix" /><p>Good events start here. Discover what’s on, secure your place and keep every ticket close.</p><form className="footer-newsletter"><strong>Get the good stuff first.</strong><label><input type="email" placeholder="Email address" aria-label="Email address"/><button type="submit" aria-label="Subscribe">Join <span>→</span></button></label><small>Occasional event recommendations. No noise.</small></form></div>
+        <div className="footer-brand"><img src="/crowdloop-logo.png" alt="Crowdloop" /><p>Good events start here. Discover what’s on, secure your place and keep every ticket close.</p><form className="footer-newsletter"><strong>Get the good stuff first.</strong><label><input type="email" placeholder="Email address" aria-label="Email address"/><button type="submit" aria-label="Subscribe">Join <span>→</span></button></label><small>Occasional event recommendations. No noise.</small></form></div>
         <div className="footer-links">{footerGroups.map((group) => <div key={group.title}><h3>{group.title}</h3>{group.links.map(([label, href]) => <a href={href} key={label}>{label}</a>)}</div>)}</div>
       </div>
-      <div className="footer-bottom"><span>© 2026 NexTix Technologies Ltd</span><div><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/accessibility">Accessibility</a></div><div className="socials"><a href="/contact" aria-label="Instagram">ig</a><a href="/contact" aria-label="LinkedIn">in</a><a href="/contact" aria-label="TikTok">tk</a></div><a href="#top">Back to top ↑</a></div>
+      <div className="footer-bottom"><span>© 2026 Crowdloop Technologies Ltd</span><div><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/accessibility">Accessibility</a></div><div className="socials"><a href="/contact" aria-label="Instagram">ig</a><a href="/contact" aria-label="LinkedIn">in</a><a href="/contact" aria-label="TikTok">tk</a></div><a href="#top">Back to top ↑</a></div>
     </footer>
   );
 }

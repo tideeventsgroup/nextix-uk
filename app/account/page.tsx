@@ -6,7 +6,7 @@ export default function Account(){
   const [showPassword,setShowPassword]=useState(false);
   const [submitted,setSubmitted]=useState(false);
   return <main className="account-page" id="top">
-    <a className="auth-brand" href="/" aria-label="NexTix home"><img src="/nextix-logo.png" alt="NexTix"/></a>
+    <a className="auth-brand" href="/" aria-label="Crowdloop home"><img src="/crowdloop-logo.png" alt="Crowdloop"/></a>
     <a className="auth-close" href="/" aria-label="Close and return home">×</a>
     <section className="auth-stage" aria-hidden="true">
       <div className="auth-glow glow-one"/><div className="auth-glow glow-two"/>
@@ -18,7 +18,7 @@ export default function Account(){
     <section className="auth-panel">
       <div className="auth-panel-inner">
         <p className="eyebrow">Welcome back</p>
-        <h2>Sign in to NexTix</h2>
+        <h2>Sign in to Crowdloop</h2>
         <p className="auth-intro">Your tickets, plans and saved events are waiting.</p>
         {submitted?<div className="auth-success"><span>✓</span><h3>Welcome back</h3><p>This preview is ready for secure account authentication to be connected.</p><a href="/my-tickets">View my tickets →</a><button onClick={()=>setSubmitted(false)}>Back to sign in</button></div>:<>
           <div className="social-signin"><button type="button"><b>G</b> Continue with Google</button><button type="button"><b>●</b> Continue with Apple</button></div>
@@ -29,10 +29,10 @@ export default function Account(){
             <label className="remember-me"><input type="checkbox"/> Keep me signed in</label>
             <button className="auth-submit" type="submit"><span>Sign in</span><b>→</b></button>
           </form>
-          <p className="auth-create">New to NexTix? <a href="/contact">Create an account</a></p>
+          <p className="auth-create">New to Crowdloop? <a href="/contact">Create an account</a></p>
         </>}
       </div>
-      <footer><span>© 2026 NexTix</span><a href="/privacy">Privacy</a><a href="/help">Need help?</a></footer>
+      <footer><span>© 2026 Crowdloop</span><a href="/privacy">Privacy</a><a href="/help">Need help?</a></footer>
     </section>
   </main>
 }
