@@ -1,16 +1,20 @@
 import { notFound } from "next/navigation";
-import { calendarLink, events, getEvent, mapLink, relatedEvents } from "../../events-data";
+import { calendarLink, mapLink } from "../../events-data";
+import { getEvent, getRelatedEvents, getTicketTiers } from "../../../lib/data";
 import { TicketSelector } from "./ticket-selector";
 import { SaveEventButton } from "./save-event-button";
 import { ShareButton } from "./share-button";
 
-export function generateStaticParams() { return events.map((event) => ({ slug: event.slug })); }
+export const dynamic = "force-dynamic";
 
 export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const event = getEvent(slug);
+  const event = await getEvent(slug);
   if (!event) notFound();
-  const related = relatedEvents(event.slug, event.category);
+  const [related, tiers] = await Promise.all([
+    getRelatedEvents(event.slug, event.category),
+    getTicketTiers(event.slug),
+  ]);
 
   return <main className="event-detail" id="top">
     <section className="event-detail-hero">
@@ -43,7 +47,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
         </section>
         {related.length > 0 && <section className="related-events"><p className="eyebrow">You might also like</p><h3>More {event.category.toLowerCase()} nearby</h3><div className="related-grid">{related.map((item) => <a className="related-card" href={`/events/${item.slug}`} key={item.slug}><img src={item.image} alt="" /><div><p>{item.day.toUpperCase()} {item.dateNum} {item.month} · {item.city}</p><strong>{item.title}</strong><span>From £{item.price}</span></div></a>)}</div></section>}
       </div>
-      <TicketSelector slug={event.slug} title={event.title} date={event.dateLabel} venue={`${event.venue}, ${event.city}`} image={event.image} price={event.price} organiser={event.organiser} availability={event.generalAvailability} />
+      <TicketSelector slug={event.slug} title={event.title} date={event.dateLabel} venue={`${event.venue}, ${event.city}`} image={event.image} tiers={tiers} organiser={event.organiser} />
     </section>
   </main>;
 }
