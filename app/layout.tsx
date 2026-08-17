@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { Geist } from "next/font/google";
 import { SiteFooter, SiteHeader } from "./site-chrome";
@@ -6,6 +6,11 @@ import { Preloader } from "./preloader";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
