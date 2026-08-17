@@ -1,10 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 type Props = { slug: string; title: string; date: string; venue: string; image: string; price: number; organiser: string; availability: string };
 
 export function TicketSelector({ slug, title, date, venue, image, price, organiser, availability }: Props) {
+  const router = useRouter();
   const [tier, setTier] = useState<"General admission" | "Priority entry">("General admission");
   const [quantity, setQuantity] = useState(1);
   const unitPrice = tier === "Priority entry" ? price + 14 : price;
@@ -12,7 +14,7 @@ export function TicketSelector({ slug, title, date, venue, image, price, organis
 
   function continueToCheckout() {
     localStorage.setItem("crowdloop-basket", JSON.stringify({ slug, title, date, venue, image, tier, quantity, unitPrice }));
-    window.location.href = "/checkout";
+    router.push("/checkout");
   }
 
   return <>
