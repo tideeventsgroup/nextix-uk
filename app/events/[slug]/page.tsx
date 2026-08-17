@@ -1,24 +1,53 @@
 import { notFound } from "next/navigation";
+import { calendarLink, mapLink } from "../../events-data";
+import { getEvent, getRelatedEvents, getTicketTiers } from "../../../lib/data";
 import { TicketSelector } from "./ticket-selector";
+import { SaveEventButton } from "./save-event-button";
+import { ShareButton } from "./share-button";
 
-const eventData = {
-  "north-coast-sessions": { title:"North Coast Sessions", category:"Music festival", date:"Saturday 12 September 2026", time:"12:00–23:00", venue:"The Harbour Grounds", city:"Ayr, Scotland", price:32, image:"https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1800&q=90", intro:"A full day of exceptional live music beside the coast, bringing breakthrough artists and established favourites together across three stages.", schedule:[["12:00","Gates open"],["14:15","Harbour Stage begins"],["18:30","Evening programme"],["22:45","Last performance"]]},
-  "field-and-flame-festival": { title:"Field & Flame Festival", category:"Food & drink", date:"Sunday 20 September 2026", time:"11:00–20:00", venue:"Kelvingrove Park", city:"Glasgow, Scotland", price:18, image:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1800&q=90", intro:"A generous celebration of Scotland’s independent kitchens, growers and makers—with open-fire cooking, tastings and live demonstrations.", schedule:[["11:00","Festival opens"],["12:30","Chef’s table"],["15:00","Field kitchen demo"],["19:30","Last service"]]},
-  "a-midsummer-nights-dream": { title:"A Midsummer Night’s Dream", category:"Theatre", date:"24–27 September 2026", time:"19:30", venue:"Civic Theatre", city:"Edinburgh, Scotland", price:24, image:"https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=1800&q=90", intro:"A vivid, contemporary staging of Shakespeare’s most playful comedy—full of live music, restless magic and glorious confusion.", schedule:[["18:45","Doors open"],["19:30","Act one"],["20:35","Interval"],["22:05","Performance ends"]]},
-  "little-explorers-live": { title:"Little Explorers Live", category:"Family", date:"Saturday 3 October 2026", time:"10:30–16:00", venue:"Discovery Centre", city:"Dundee, Scotland", price:12, image:"https://images.unsplash.com/photo-1472653431158-6364773b2a56?auto=format&fit=crop&w=1800&q=90", intro:"A hands-on day of science, creativity and discovery for curious young minds and their grown-ups.", schedule:[["10:30","Doors open"],["11:15","Big science show"],["13:30","Maker workshop"],["16:00","Event closes"]]},
-  "city-10k-and-festival": { title:"City 10K & Festival", category:"Sport", date:"Sunday 11 October 2026", time:"08:30", venue:"Riverside Park", city:"Stirling, Scotland", price:20, image:"https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1800&q=90", intro:"A fast, friendly city run followed by food, music and family activity beside the river. All abilities are welcome.", schedule:[["07:15","Event village opens"],["08:30","10K start"],["10:15","Awards"],["14:00","Festival closes"]]},
-  "afterlight-orchestra": { title:"Afterlight Orchestra", category:"Live music", date:"Friday 23 October 2026", time:"19:00", venue:"The Assembly Rooms", city:"Aberdeen, Scotland", price:28, image:"https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1800&q=90", intro:"An immersive evening where a twelve-piece orchestra reshapes familiar music through strings, brass and cinematic light.", schedule:[["19:00","Doors open"],["20:00","Performance begins"],["21:00","Interval"],["22:30","Performance ends"]]},
-} as const;
+export const dynamic = "force-dynamic";
 
-type EventSlug = keyof typeof eventData;
-export function generateStaticParams(){ return Object.keys(eventData).map(slug=>({slug})); }
+export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const event = await getEvent(slug);
+  if (!event) notFound();
+  const [related, tiers] = await Promise.all([
+    getRelatedEvents(event.slug, event.category),
+    getTicketTiers(event.slug),
+  ]);
 
-export default async function EventDetailPage({params}:{params:Promise<{slug:string}>}){
-  const {slug}=await params;
-  const event=eventData[slug as EventSlug];
-  if(!event) notFound();
   return <main className="event-detail" id="top">
-    <section className="event-detail-hero"><img src={event.image} alt=""/><div className="event-detail-shade"/><div className="event-detail-heading"><p>{event.category}</p><h1>{event.title}</h1><div><span>{event.date}</span><span>{event.venue} · {event.city}</span></div></div></section>
-    <section className="event-body"><div className="event-main"><p className="eyebrow">The experience</p><h2>One for the calendar.</h2><p className="event-lead">{event.intro}</p><div className="event-facts"><article><small>Date & time</small><strong>{event.date}</strong><span>{event.time}</span></article><article><small>Location</small><strong>{event.venue}</strong><span>{event.city}</span></article><article><small>Age guidance</small><strong>All ages welcome</strong><span>Under 16s with an adult</span></article></div><div className="event-schedule"><p className="eyebrow">Event schedule</p>{event.schedule.map(([time,item])=><div key={time}><time>{time}</time><strong>{item}</strong></div>)}</div><section className="event-info-block"><h3>Before you arrive</h3><p>Your mobile ticket will be available immediately after checkout. Please have it ready when you reach the entrance. Small bags are permitted and may be searched.</p><h3>Accessibility</h3><p>Step-free entry, accessible toilets and companion tickets are available. Contact the organiser through your order if you need specific arrangements.</p><h3>Getting there</h3><p>Public transport is recommended. Full travel guidance and any final event updates will be emailed to ticket holders before the event.</p></section></div><TicketSelector slug={slug} title={event.title} date={event.date} venue={`${event.venue}, ${event.city}`} image={event.image} price={event.price} /></section>
-  </main>
+    <section className="event-detail-hero">
+      <img src={event.image} alt="" /><div className="event-detail-shade" />
+      <nav className="breadcrumb" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/events">Events</a></li><li><a href={`/events?q=${encodeURIComponent(event.category)}`}>{event.category}</a></li><li aria-current="page">{event.title}</li></ol></nav>
+      <div className="event-detail-heading"><p>{event.detailCategory}</p><h1>{event.title}</h1><div><span>{event.dateLabel}</span><span>{event.venue} · {event.city}</span></div></div>
+    </section>
+    <section className="event-body">
+      <div className="event-main">
+        <div className="event-actions-row">
+          <SaveEventButton slug={event.slug} title={event.title} />
+          <a href={calendarLink(event)} target="_blank" rel="noreferrer" className="event-action-link">Add to calendar ↗</a>
+          <ShareButton title={event.title} />
+        </div>
+        <p className="eyebrow">The experience</p><h2>One for the calendar.</h2><p className="event-lead">{event.intro}</p>
+        <div className="event-facts">
+          <article><small>Date & time</small><strong>{event.dateLabel}</strong><span>{event.time}</span></article>
+          <article><small>Location</small><strong>{event.venue}</strong><span>{event.city}</span></article>
+          <article><small>Age guidance</small><strong>{event.ageGuidance[0]}</strong><span>{event.ageGuidance[1]}</span></article>
+          <article><small>Running time</small><strong>{event.runningTime}</strong></article>
+          <article><small>Address</small><strong>{event.address}</strong><a href={mapLink(event)} target="_blank" rel="noreferrer">View on map ↗</a></article>
+          <article><small>Organiser</small><strong>{event.organiser}</strong><span>Ticketed via Crowdloop</span></article>
+        </div>
+        <div className="event-schedule"><p className="eyebrow">Event schedule</p>{event.schedule.map(([time, item]) => <div key={time}><time>{time}</time><strong>{item}</strong></div>)}</div>
+        <section className="event-info-block">
+          <h3>Before you arrive</h3><p>Your mobile ticket will be available immediately after checkout. Please have it ready when you reach the entrance. Small bags are permitted and may be searched.</p>
+          <h3>Accessibility</h3><p>Step-free entry, accessible toilets and companion tickets are available. Contact the organiser through your order if you need specific arrangements.</p>
+          <h3>Getting there</h3><p>Public transport is recommended. Full travel guidance and any final event updates will be emailed to ticket holders before the event.</p>
+          <h3>Refunds and cancellations</h3><p>If this event is cancelled or rescheduled, the organiser will contact you directly. See our <a href="/refunds">refund policy</a> for full details.</p>
+        </section>
+        {related.length > 0 && <section className="related-events"><p className="eyebrow">You might also like</p><h3>More {event.category.toLowerCase()} nearby</h3><div className="related-grid">{related.map((item) => <a className="related-card" href={`/events/${item.slug}`} key={item.slug}><img src={item.image} alt="" /><div><p>{item.day.toUpperCase()} {item.dateNum} {item.month} · {item.city}</p><strong>{item.title}</strong><span>From £{item.price}</span></div></a>)}</div></section>}
+      </div>
+      <TicketSelector slug={event.slug} title={event.title} date={event.dateLabel} venue={`${event.venue}, ${event.city}`} image={event.image} tiers={tiers} organiser={event.organiser} />
+    </section>
+  </main>;
 }

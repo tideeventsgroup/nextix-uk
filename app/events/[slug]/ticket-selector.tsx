@@ -1,26 +1,38 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
-type Props = { slug:string; title:string; date:string; venue:string; image:string; price:number };
+type Tier = { id: string; name: string; price: number; description: string };
+type Props = { slug: string; title: string; date: string; venue: string; image: string; tiers: Tier[]; organiser: string };
 
-export function TicketSelector({ slug, title, date, venue, image, price }: Props) {
-  const [tier, setTier] = useState<"General admission" | "Priority entry">("General admission");
+export function TicketSelector({ slug, title, date, venue, image, tiers, organiser }: Props) {
+  const router = useRouter();
+  const [tierIndex, setTierIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const unitPrice = tier === "Priority entry" ? price + 14 : price;
-  const total = useMemo(() => unitPrice * quantity, [unitPrice, quantity]);
+  const tier = tiers[tierIndex];
+  const total = useMemo(() => (tier ? tier.price * quantity : 0), [tier, quantity]);
 
   function continueToCheckout() {
-    localStorage.setItem("crowdloop-basket", JSON.stringify({ slug, title, date, venue, image, tier, quantity, unitPrice }));
-    window.location.href = "/checkout";
+    if (!tier) return;
+    localStorage.setItem("crowdloop-basket", JSON.stringify({ slug, title, date, venue, image, tier: tier.name, quantity, unitPrice: tier.price }));
+    router.push("/checkout");
   }
 
-  return <aside className="buy-card">
-    <p className="eyebrow">Tickets on sale</p><h2>Choose tickets</h2>
-    <button className={tier === "General admission" ? "ticket-tier selected" : "ticket-tier"} onClick={() => setTier("General admission")}><span><strong>General admission</strong><small>Mobile ticket · Good availability</small></span><b>£{price}</b></button>
-    <button className={tier === "Priority entry" ? "ticket-tier selected" : "ticket-tier"} onClick={() => setTier("Priority entry")}><span><strong>Priority entry</strong><small>Early entrance lane · 18 left</small></span><b>£{price + 14}</b></button>
-    <label>Quantity<select value={quantity} onChange={(event) => setQuantity(Number(event.target.value))}><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
-    <button className="buy-button" onClick={continueToCheckout}>Add to basket · £{total}.00 <span>↗</span></button><small>Booking fees shown before payment</small>
-    <div className="organiser-mini"><span>C</span><p><small>Organised by</small><strong>Crowdloop Presents</strong></p></div>
-  </aside>;
+  if (!tier) return null;
+
+  return <>
+    <aside className="buy-card" id="buy-card">
+      <p className="eyebrow">Tickets on sale</p><h2>Choose tickets</h2>
+      {tiers.map((item, index) => (
+        <button key={item.id} className={index === tierIndex ? "ticket-tier selected" : "ticket-tier"} onClick={() => setTierIndex(index)}>
+          <span><strong>{item.name}</strong><small>{item.description}</small></span><b>£{item.price}</b>
+        </button>
+      ))}
+      <label>Quantity<select value={quantity} onChange={(event) => setQuantity(Number(event.target.value))}><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+      <button className="buy-button" onClick={continueToCheckout}>Add to basket · £{total}.00 <span>↗</span></button><small>Booking fees shown before payment</small>
+      <div className="organiser-mini"><span>{organiser.charAt(0)}</span><p><small>Organised by</small><strong>{organiser}</strong></p></div>
+    </aside>
+    <div className="mobile-buy-bar"><div><small>From</small><strong>£{tiers[0].price}</strong></div><button onClick={() => document.getElementById("buy-card")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Choose tickets</button></div>
+  </>;
 }

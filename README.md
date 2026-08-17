@@ -1,100 +1,69 @@
-# vinext-starter
+# Crowdloop
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+A UK event-discovery and ticketing platform, built with Next.js (App Router),
+Supabase Postgres and Better Auth, deployed on Vercel.
 
 ## Prerequisites
 
-- Node.js `>=22.13.0`
+- Node.js `>=20.9.0`
+- A Supabase project (Postgres database)
 
-## Quick Start
+## Quick start
 
 ```bash
 npm install
+cp .env.example .env.local   # fill in DATABASE_URL and BETTER_AUTH_SECRET
 npm run dev
-npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+## Environment variables
 
-## Included Shape
+| Variable | Description |
+| --- | --- |
+| `DATABASE_URL` | Supabase Postgres connection string. Use the transaction pooler (port `6543`, host `aws-0-<region>.pooler.supabase.com`, username `<role>.<project-ref>`) for serverless deployments. |
+| `BETTER_AUTH_SECRET` | Random 32+ byte secret used to sign sessions. Generate with `openssl rand -base64 32`. |
+| `BETTER_AUTH_URL` | The deployment's own base URL (used server-side for callbacks). |
+| `NEXT_PUBLIC_BETTER_AUTH_URL` | Same base URL, exposed to the browser for the auth client. |
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+See `.env.example` for a template.
 
-## Workspace Auth Headers
+## Architecture
 
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
+- `app/` — Next.js App Router routes and components.
+- `app/events-data.ts` — shared event catalogue used across the homepage, Find Events, and event detail pages.
+- `app/use-local-list.ts` / `app/use-saved-events.ts` — shared client-side saved-events state (localStorage-backed).
+- `lib/auth.ts` — Better Auth server configuration (Drizzle Postgres adapter).
+- `lib/auth-client.ts` — Better Auth React client (`useSession`, `signIn`, `signUp`, `signOut`, `requestPasswordReset`).
+- `app/api/auth/[...all]/route.ts` — Better Auth's Next.js route handler.
+- `db/schema.ts` — Drizzle schema for Better Auth's core tables (`user`, `session`, `account`, `verification`).
+- `drizzle.config.ts` — points `drizzle-kit` at the Postgres database via `DATABASE_URL`.
 
-The user ID is stable for the same user on the same Site and different across Sites. Email and name are intended for display or contact purposes.
+## Database
 
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
+Schema changes are applied as SQL migrations directly against the Supabase
+project. `db:generate`/`db:push` (drizzle-kit) are available for local
+development once `DATABASE_URL` is set, but the current schema was applied via
+Supabase migrations and Row Level Security is enabled with no policies on the
+`user`/`session`/`account`/`verification` tables — they're only ever read by
+the server-side Better Auth connection, never by the browser.
 
-Treat the full name as optional and fall back to email when it is absent:
+## Useful commands
 
-```tsx
-import { headers } from "next/headers";
+- `npm run dev` — start the local dev server
+- `npm run build` — production build
+- `npm start` — run a production build locally
+- `npm run lint` — ESLint
+- `npm run db:generate` / `npm run db:push` — Drizzle migrations
 
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
+## Deployment
 
-  const displayName = fullName ?? email;
-  // ...
-}
-```
+Deployed on Vercel, linked to this repository. Set the environment variables
+above in the Vercel project settings before the first deploy.
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+## Not yet wired to the database
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
-
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
-
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
-
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+Events, venues, tickets, orders and the checkout flow currently use static
+demo data and browser `localStorage` — only authentication (sign up, sign in,
+sign out, password reset requests) is backed by the real Postgres database.
+Persisting bookings, tickets and saved events per signed-in user is a natural
+next step but is out of scope for the current pass.

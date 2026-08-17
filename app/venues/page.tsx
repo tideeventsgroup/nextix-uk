@@ -1,2 +1,9 @@
-const venues=[{name:"The Harbour Grounds",city:"Ayr",events:12,image:"https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1000&q=85"},{name:"Civic Theatre",city:"Edinburgh",events:28,image:"https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=1000&q=85"},{name:"Assembly Rooms",city:"Aberdeen",events:19,image:"https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1000&q=85"}];
-export default function Venues(){return <main className="inner-page venues-page" id="top"><section className="page-hero venue-hero"><p className="eyebrow">Places worth knowing</p><h1>Great events<br/>need great rooms.</h1><p>Follow venues you love and discover what’s coming next.</p></section><section className="venue-grid">{venues.map(v=><article key={v.name}><img src={v.image} alt=""/><div><p>{v.city}</p><h2>{v.name}</h2><span>{v.events} upcoming events</span><button>Follow venue +</button></div></article>)}</section></main>}
+import { getVenues } from "../../lib/data";
+import { VenuesClient } from "./venues-client";
+
+export const dynamic = "force-dynamic";
+
+export default async function Venues() {
+  const venues = await getVenues();
+  return <VenuesClient venues={venues} />;
+}
